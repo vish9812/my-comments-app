@@ -2,17 +2,19 @@ body {
   font-family: "Inter", serif;
   font-style: normal;
   font-weight: normal;
+  padding: 10% 20%;
 }
 
-main {
-  padding: 10% 20%;
+header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .heading {
   font-weight: bold;
   font-size: 18px;
   line-height: 22px;
-  margin-bottom: 30px;
 }
 
 .new-comment-section {
@@ -49,7 +51,7 @@ main {
 
 .comment-section {
   display: flex;
-  margin: 10px 0;
+  margin: 25px 0;
 }
 
 .comment-data {

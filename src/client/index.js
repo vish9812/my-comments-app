@@ -1,12 +1,46 @@
-document.addEventListener("DOMContentLoaded", () => {
-  (async () => {
-    const comments = await fetchComments();
-    bindComments(comments);
-  })();
-});
+const api = "http://localhost:5000/comments";
+
+const onDomLoaded = async () => {
+  const comments = await fetchComments();
+  bindComments(comments);
+};
+
+const onNewComment = async (event) => {
+  if (event.target.id !== "newCommentButton") {
+    return;
+  }
+
+  const name = document.getElementById("username").value;
+  if (!name || !name.trim().length) {
+    alert("Enter Your Name");
+    return;
+  }
+
+  const comment = document.getElementById("newCommentText").value;
+  if (!comment || !comment.trim().length) {
+    alert("Enter Your Comment");
+    return;
+  }
+
+  const response = await fetch(api, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      commenter: name,
+      text: comment,
+    }),
+  });
+
+  const savedComment = await response.json();
+
+  console.log("Saved>>>>", savedComment);
+  bindComments([savedComment]);
+};
 
 const fetchComments = async () => {
-  const response = await fetch("http://localhost:5000/comments");
+  const response = await fetch(api);
   const comments = await response.json();
   console.log("Got comm>>>", comments);
 
@@ -28,11 +62,11 @@ const bindComments = (comments) => {
     commentsHtmlList.push(getCommentHtml(comment));
   });
 
-  commentsSection.innerHTML = commentsHtmlList.join();
+  commentsSection.insertAdjacentHTML("beforeend", commentsHtmlList.join(""));
 };
 
 const getCommentHtml = (comment) => `
-  <div class="comment-section">
+  <div class="comment-section" data-id="${comment.id}">
     <img class="user-pic" src="image 2.png" alt="user" />
     <div class="comment-data">
       <div>
@@ -42,7 +76,7 @@ const getCommentHtml = (comment) => `
       <div class="comment">${comment.text}</div>
       <div class="comment-response">
         <span class="material-icons">thumb_up_alt</span>
-        <span class="upvote-count">&nbsp;${comment.upvotes.length}</span>
+        <span class="upvote-count">&nbsp;${comment.upvotes?.length || 0}</span>
         <span class="reply">Reply</span>
       </div>
     </div>
@@ -51,3 +85,9 @@ const getCommentHtml = (comment) => `
 
 const getAgoTime = (time) =>
   new Date().getMinutes() - new Date(time).getMinutes();
+
+document.addEventListener("DOMContentLoaded", () => {
+  onDomLoaded();
+});
+
+document.addEventListener("click", (event) => onNewComment(event));

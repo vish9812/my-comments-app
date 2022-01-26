@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import db from "./models/db.js";
 
 dotenv.config();
 
@@ -10,21 +11,33 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/comments", (req, res) => {
-  res.json([
-    {
-      commenter: "Rob Hope",
-      time: new Date(2022, 0, 26, 21),
-      text: `When you submit your work via the application form on we’ll ask you to explain a couple of the big architectural decisions you made, and anything you’d do differently next time around.`,
-      upvotes: [],
-    },
-    {
-      commenter: "Rob Hope",
-      time: new Date(2022, 0, 26, 21, 5),
-      text: `When you submit your work via the application form on we’ll ask you to explain a couple of the big architectural decisions you made, and anything you’d do differently next time around.`,
-      upvotes: [],
-    },
-  ]);
+db.sequelize.sync({ force: true });
+const Comment = db.comments;
+
+app.get("/comments", async (req, res) => {
+  const comments = await Comment.findAll();
+  console.log("Fetched users...", comments.length);
+
+  res.json(comments);
+});
+
+app.post("/comments", async (req, res) => {
+  // Validate
+  if (!req.body.text || req.body.text.trim().length === 0) {
+    res.status(400).json({
+      message: "Comment can't be empty",
+    });
+
+    return;
+  }
+
+  const comment = { ...req.body };
+  comment.commenter = comment.commenter || "Random Guy";
+
+  const savedComment = await Comment.create(comment);
+  console.log("Saved comment...", savedComment.commenter);
+
+  res.json(savedComment);
 });
 
 app.listen(process.env.PORT, process.env.HOST, () =>
