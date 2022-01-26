@@ -71,7 +71,7 @@ const getCommentHtml = (comment) => `
     <div class="comment-data">
       <div>
         <span class="commenter">${comment.commenter}</span>
-        <span class="time-ago">. ${getAgoTime(comment.time)} min ago</span>
+        <span class="time-ago">. ${comment.timeAgo}</span>
       </div>
       <div class="comment">${comment.text}</div>
       <div class="comment-response">
@@ -82,9 +82,6 @@ const getCommentHtml = (comment) => `
     </div>
   </div>
 `;
-
-const getAgoTime = (time) =>
-  new Date().getMinutes() - new Date(time).getMinutes();
 
 document.addEventListener("DOMContentLoaded", () => {
   onDomLoaded();
