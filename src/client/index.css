@@ -91,6 +91,10 @@ header {
   color: #4b587c;
 }
 
+.upvote {
+  cursor: pointer;
+}
+
 .reply {
   margin-left: 20px;
 }

@@ -6,6 +6,10 @@ export default (sequelize, Sequelize) => {
     text: {
       type: Sequelize.STRING,
     },
+    upvotes: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+    },
   });
 
   Comment.hasMany(Comment);

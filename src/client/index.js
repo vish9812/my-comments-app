@@ -5,16 +5,23 @@ const onDomLoaded = async () => {
   bindComments(comments);
 };
 
-const onNewComment = async (event) => {
+const validateName = () => {
+  const name = document.getElementById("username").value;
+  if (!name || !name.trim().length) {
+    alert("Enter Your Name");
+    return null;
+  }
+
+  return name;
+};
+
+const onComment = async (event) => {
   if (event.target.id !== "newCommentButton") {
     return;
   }
 
-  const name = document.getElementById("username").value;
-  if (!name || !name.trim().length) {
-    alert("Enter Your Name");
-    return;
-  }
+  const name = validateName();
+  if (!name) return;
 
   const comment = document.getElementById("newCommentText").value;
   if (!comment || !comment.trim().length) {
@@ -37,6 +44,26 @@ const onNewComment = async (event) => {
 
   console.log("Saved>>>>", savedComment);
   bindComments([savedComment]);
+};
+
+const onUpvote = async (event) => {
+  const upvoteNode = event.target;
+
+  if (!upvoteNode.classList.contains("upvote")) {
+    return;
+  }
+
+  if (!validateName()) return;
+
+  const commentId = upvoteNode.closest(".comment-section").dataset.id;
+
+  await fetch(`${api}/${commentId}/upvote`, {
+    method: "put",
+  });
+
+  const upvoteCountNode = upvoteNode.nextSibling.nextSibling;
+
+  upvoteCountNode.innerHTML = +upvoteCountNode.innerHTML + 1;
 };
 
 const fetchComments = async () => {
@@ -75,8 +102,8 @@ const getCommentHtml = (comment) => `
       </div>
       <div class="comment">${comment.text}</div>
       <div class="comment-response">
-        <span class="material-icons">thumb_up_alt</span>
-        <span class="upvote-count">&nbsp;${comment.upvotes?.length || 0}</span>
+        <span class="material-icons upvote">thumb_up_alt</span>
+        &nbsp;<span class="upvote-count">${comment.upvotes}</span>
         <span class="reply">Reply</span>
       </div>
     </div>
@@ -87,4 +114,5 @@ document.addEventListener("DOMContentLoaded", () => {
   onDomLoaded();
 });
 
-document.addEventListener("click", (event) => onNewComment(event));
+document.addEventListener("click", (event) => onComment(event));
+document.addEventListener("click", (event) => onUpvote(event));
