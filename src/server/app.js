@@ -11,7 +11,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/comments", (req, res) => {
-  console.log("Got comments>>>");
   res.json([
     {
       commenter: "Rob Hope",
@@ -28,4 +27,6 @@ app.get("/comments", (req, res) => {
   ]);
 });
 
-app.listen(process.env.PORT, () => console.log("App is running"));
+app.listen(process.env.PORT, process.env.HOST, () =>
+  console.log("App is running")
+);

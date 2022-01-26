@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  mysqldb:
+    image: mysql
+    container_name: mysqldb
+    restart: always
+    command: --authentication_policy=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  server:
+    image: server
+    depends_on:
+      - mysqldb
+    build:
+      context: src/server
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 5000
+    ports:
+      - 5000:5000
+
+volumes:
+  mysql_data:
