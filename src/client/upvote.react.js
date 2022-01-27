@@ -1,12 +1,29 @@
 import utils from "./utils.js";
 
+const socket = io(utils.baseApi);
+socket.on("connect", () => {
+  console.log("Connected>>>", socket.id);
+});
+
+socket.on("disconnect", () => {
+  console.log("Disconnected>>>", socket.id);
+});
+
 const el = React.createElement;
 
 const Upvote = ({ commentId, upvotes }) => {
   const [count, setCount] = React.useState(upvotes);
 
+  React.useEffect(() => {
+    socket.on("upvoted", (upvotedCommentId, senderSocketId) => {
+      if (senderSocketId !== socket.id && upvotedCommentId === commentId) {
+        setCount((c) => c + 1);
+      }
+    });
+  }, []);
+
   const handleUpvote = async () => {
-    await fetch(`${utils.api}/${commentId}/upvote`, {
+    await fetch(`${utils.api}/${commentId}/upvote?socketId=${socket.id}`, {
       method: "put",
     });
 

@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import db from "./models/db.js";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
+import { Server } from "socket.io";
+import { createServer } from "http";
 
 dotenv.config();
 TimeAgo.addDefaultLocale(en);
@@ -69,8 +71,20 @@ app.put("/comments/:commentId/upvote", async (req, res) => {
   );
 
   res.sendStatus(200);
+  io.emit("upvoted", commentId, req.query.socketId);
 });
 
-app.listen(process.env.PORT, process.env.HOST, () =>
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("New socket connection>>>", socket.id);
+});
+
+httpServer.listen(process.env.PORT, process.env.HOST, () =>
   console.log("App is running")
 );
