@@ -1,7 +1,9 @@
+import appConfig from "./environment.js";
+
 export default {
-  host: process.env.DB_HOST, //"localhost",
+  host: appConfig.db.host,
   username: "root",
-  password: "admin",
+  password: appConfig.db.password,
   database: "my_comments",
   dialect: "mysql",
   retry: {

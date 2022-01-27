@@ -31,6 +31,7 @@ const onComment = async (event) => {
     return;
   }
 
+  // To check if new comment or a reply
   const replyOnCommentId = utils.getCommentIdFromDom(commentButtonNode);
 
   const comment = {
@@ -101,6 +102,8 @@ const fetchComments = async () => {
   return comments;
 };
 
+// Bind new comments at top
+// Bind replies 1-level down
 const bindComments = (comments, replyOnCommentId) => {
   const commentsSection = document.getElementById("comments");
 

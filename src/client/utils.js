@@ -1,6 +1,6 @@
 const utils = {
-  baseApi: "http://localhost:3000",
-  api: "http://localhost:3000/comments",
+  baseApi: "http://localhost:5000", // docker:5000, local:3000
+  api: "http://localhost:5000/comments",
 
   validateName: () => {
     const name = document.getElementById("username").value;

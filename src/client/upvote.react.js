@@ -24,11 +24,6 @@ const Upvote = ({ commentId, upvotes }) => {
 
   const handleUpvote = async () => {
     socket.emit("upvoted", commentId);
-    // await fetch(`${utils.api}/${commentId}/upvote?socketId=${socket.id}`, {
-    //   method: "put",
-    // });
-
-    // setCount(count + 1);
   };
 
   return el(
