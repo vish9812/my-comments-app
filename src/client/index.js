@@ -20,6 +20,7 @@ const onComment = async (event) => {
     return;
   }
 
+  // Validate
   const name = utils.validateName();
   if (!name) return;
 
@@ -38,6 +39,7 @@ const onComment = async (event) => {
     commentId: replyOnCommentId,
   };
 
+  // Save
   const response = await fetch(utils.api, {
     method: "post",
     headers: {
@@ -50,16 +52,22 @@ const onComment = async (event) => {
 
   console.log("Saved>>>>", savedComment);
 
+  // Update Html
   if (replyOnCommentId) {
-    commentButtonNode.parentNode.remove();
+    document
+      .getElementById("comments")
+      .querySelector(".new-comment-section")
+      .remove();
+  } else {
+    document.querySelector(".newCommentText").value = "";
   }
 
-  bindComments([savedComment]);
+  bindComments([savedComment], replyOnCommentId);
+  const addedComment = document.getElementById("comment_" + savedComment.id);
 
-  const allUpvotes = document.querySelectorAll(".react-upvote-count");
-
+  // Bind React
   utils.events.dispatchCommentsAddedToHtml([
-    allUpvotes.item(allUpvotes.length - 1),
+    addedComment.querySelector(".react-upvote-count"),
   ]);
 };
 
@@ -70,6 +78,16 @@ const onReply = async (event) => {
     return;
   }
 
+  // Remove previous replyBox, if any
+  const prevReplyBox = document
+    .getElementById("comments")
+    .querySelector(".new-comment-section");
+
+  if (prevReplyBox) {
+    prevReplyBox.remove();
+  }
+
+  // Add new replyBox
   replyNode
     .closest(".comment-response")
     .insertAdjacentHTML("afterend", utils.getNewCommentHtml());
@@ -83,7 +101,7 @@ const fetchComments = async () => {
   return comments;
 };
 
-const bindComments = (comments) => {
+const bindComments = (comments, replyOnCommentId) => {
   const commentsSection = document.getElementById("comments");
 
   if (comments.length === 0) {
@@ -91,18 +109,73 @@ const bindComments = (comments) => {
     return;
   }
 
-  const commentsHtmlList = [];
+  if (comments.length === 1) {
+    if (replyOnCommentId) {
+      // Reply comment
+      const commentParent = utils.getCommentSection(replyOnCommentId);
+      commentParent.insertAdjacentHTML(
+        "afterend",
+        utils.getCommentHtml(comments[0])
+      );
+    } else {
+      // New comment
+      commentsSection.insertAdjacentHTML(
+        "afterbegin",
+        utils.getCommentHtml(comments[0])
+      );
+    }
+  } else {
+    // First time all comments
 
-  comments.forEach((comment) => {
-    commentsHtmlList.push(utils.getCommentHtml(comment));
-  });
+    // First render parents
+    // Then render respective children under top parent
+    const parents = [];
+    const children = [];
+    const lookup = new Map();
+    for (const comment of comments) {
+      const parentId = comment.commentId;
+      lookup.set(comment.id, parentId || 0);
 
-  commentsSection.insertAdjacentHTML("beforeend", commentsHtmlList.join(""));
+      if (parentId) {
+        children.push(comment);
+      } else {
+        parents.push(comment);
+      }
+    }
+
+    // Add Parents
+    const parentsHtmlList = [];
+    parents.forEach((comment) => {
+      parentsHtmlList.push(utils.getCommentHtml(comment));
+    });
+    commentsSection.insertAdjacentHTML("afterbegin", parentsHtmlList.join(""));
+
+    // Add children
+    const childrenHtmlMap = new Map();
+    children.forEach((comment) => {
+      // get top parent
+      let parentId = comment.commentId;
+      let topParentId = parentId;
+
+      while (parentId) {
+        topParentId = parentId;
+        parentId = lookup.get(parentId);
+      }
+
+      const childrenHtmlList = childrenHtmlMap.get(topParentId) || [];
+      childrenHtmlList.push(utils.getCommentHtml(comment));
+      childrenHtmlMap.set(topParentId, childrenHtmlList);
+    });
+
+    // Bind children
+    childrenHtmlMap.forEach((commentsHtml, topParentId) => {
+      const topParent = utils.getCommentSection(topParentId);
+      topParent.insertAdjacentHTML("afterend", commentsHtml.join(""));
+    });
+  }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  onDomLoaded();
-});
+document.addEventListener("DOMContentLoaded", onDomLoaded);
 
-document.addEventListener("click", (event) => onComment(event));
-document.addEventListener("click", (event) => onReply(event));
+document.addEventListener("click", onComment);
+document.addEventListener("click", onReply);

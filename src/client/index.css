@@ -104,3 +104,7 @@ header {
   display: flex;
   align-items: center;
 }
+
+.child-comment {
+  margin-left: 50px;
+}

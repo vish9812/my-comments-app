@@ -11,7 +11,7 @@ const timeAgo = new TimeAgo("en-US");
 const updateTimeAgo = (comments) =>
   comments.map((m) => {
     const comment = m.get({ plain: true });
-    comment.timeAgo = timeAgo.format(new Date(comment.updatedAt));
+    comment.timeAgo = timeAgo.format(new Date(comment.createdAt));
     return comment;
   });
 
@@ -25,7 +25,9 @@ db.sequelize.sync();
 const Comment = db.comments;
 
 app.get("/comments", async (req, res) => {
-  const comments = await Comment.findAll();
+  const comments = await Comment.findAll({
+    order: [["createdAt", "DESC"]],
+  });
   console.log("Fetched users...", comments.length);
 
   const commentsJson = updateTimeAgo(comments);

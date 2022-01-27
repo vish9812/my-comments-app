@@ -1,5 +1,5 @@
 const utils = {
-  api: "http://localhost:5000/comments",
+  api: "http://localhost:3000/comments",
 
   validateName: () => {
     const name = document.getElementById("username").value;
@@ -13,6 +13,8 @@ const utils = {
 
   getCommentIdFromDom: (node) => node.closest(".comment-section")?.dataset?.id,
 
+  getCommentSection: (id) => document.getElementById("comment_" + id),
+
   events: {
     dispatchCommentsAddedToHtml: (nodes) => {
       const event = new CustomEvent("commentsAddedToHtml", {
@@ -24,7 +26,9 @@ const utils = {
   },
 
   getCommentHtml: (comment) => `
-  <div class="comment-section" data-id="${comment.id}">
+  <div id="comment_${comment.id}" class="comment-section ${
+    !!comment.commentId ? "child-comment" : ""
+  }" data-id="${comment.id}">
     <img class="user-pic" src="image 2.png" alt="user" />
     <div class="comment-data">
       <div>
@@ -33,7 +37,9 @@ const utils = {
       </div>
       <div class="comment">${comment.text}</div>
       <div class="comment-response">
-        <span class="react-upvote-count" data-id="${comment.id}" data-upvotes="${comment.upvotes}"></span>
+        <span class="react-upvote-count" data-id="${
+          comment.id
+        }" data-upvotes="${comment.upvotes}"></span>
         <span class="reply">Reply</span>
       </div>
     </div>
