@@ -15,19 +15,20 @@ const Upvote = ({ commentId, upvotes }) => {
   const [count, setCount] = React.useState(upvotes);
 
   React.useEffect(() => {
-    socket.on("upvoted", (upvotedCommentId, senderSocketId) => {
-      if (senderSocketId !== socket.id && upvotedCommentId === commentId) {
+    socket.on("upvoteSaved", (upvotedCommentId) => {
+      if (upvotedCommentId === commentId) {
         setCount((c) => c + 1);
       }
     });
   }, []);
 
   const handleUpvote = async () => {
-    await fetch(`${utils.api}/${commentId}/upvote?socketId=${socket.id}`, {
-      method: "put",
-    });
+    socket.emit("upvoted", commentId);
+    // await fetch(`${utils.api}/${commentId}/upvote?socketId=${socket.id}`, {
+    //   method: "put",
+    // });
 
-    setCount(count + 1);
+    // setCount(count + 1);
   };
 
   return el(

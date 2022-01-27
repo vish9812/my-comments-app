@@ -58,21 +58,21 @@ app.post("/comments", async (req, res) => {
   res.json(commentJson);
 });
 
-app.put("/comments/:commentId/upvote", async (req, res) => {
-  const commentId = +req.params.commentId;
+// app.put("/comments/:commentId/upvote", async (req, res) => {
+//   const commentId = +req.params.commentId;
 
-  await Comment.increment(
-    { upvotes: 1 },
-    {
-      where: {
-        id: commentId,
-      },
-    }
-  );
+//   await Comment.increment(
+//     { upvotes: 1 },
+//     {
+//       where: {
+//         id: commentId,
+//       },
+//     }
+//   );
 
-  res.sendStatus(200);
-  io.emit("upvoted", commentId, req.query.socketId);
-});
+//   res.sendStatus(200);
+//   io.emit("upvoted", commentId, req.query.socketId);
+// });
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -83,6 +83,20 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
   console.log("New socket connection>>>", socket.id);
+
+  socket.on("upvoted", async (commentId) => {
+    console.log("upvoted>>>>", commentId);
+    await Comment.increment(
+      { upvotes: 1 },
+      {
+        where: {
+          id: +commentId,
+        },
+      }
+    );
+
+    io.emit("upvoteSaved", commentId);
+  });
 });
 
 httpServer.listen(process.env.PORT, process.env.HOST, () =>
