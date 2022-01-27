@@ -99,3 +99,8 @@ header {
   margin-left: 20px;
   cursor: pointer;
 }
+
+.react-upvote-count {
+  display: flex;
+  align-items: center;
+}
