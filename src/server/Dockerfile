@@ -7,4 +7,4 @@ COPY . .
 EXPOSE 5000
 RUN chown -R node /usr/src/app
 USER node
-CMD ["node", "app.js"]
+CMD ["node", "--experimental-json-modules", "app.js"]

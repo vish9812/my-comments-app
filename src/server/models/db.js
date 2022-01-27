@@ -1,6 +1,11 @@
 import { Sequelize } from "sequelize";
+import mysql from "mysql2";
 import dbConfig from "../config/db.config.js";
 import Comment from "./comment.model.js";
+
+const { host, username, password, database } = dbConfig;
+const connection = mysql.createConnection({ host, user: username, password });
+connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
 
 const sequelize = new Sequelize(dbConfig);
 

@@ -1,6 +1,10 @@
-const api = "http://localhost:5000/comments";
+const api = "http://localhost:3000/comments";
 
 const onDomLoaded = async () => {
+  document
+    .querySelector("main")
+    .insertAdjacentHTML("afterbegin", getNewCommentHtml());
+
   const comments = await fetchComments();
   bindComments(comments);
 };
@@ -15,34 +19,50 @@ const validateName = () => {
   return name;
 };
 
+const getCommentIdFromDom = (node) =>
+  node.closest(".comment-section")?.dataset?.id;
+
 const onComment = async (event) => {
-  if (event.target.id !== "newCommentButton") {
+  const commentButtonNode = event.target;
+
+  if (!commentButtonNode.classList.contains("newCommentButton")) {
     return;
   }
 
   const name = validateName();
   if (!name) return;
 
-  const comment = document.getElementById("newCommentText").value;
-  if (!comment || !comment.trim().length) {
+  const commentText =
+    commentButtonNode.parentNode.querySelector(".newCommentText").value;
+  if (!commentText || !commentText.trim().length) {
     alert("Enter Your Comment");
     return;
   }
+
+  const replyOnCommentId = getCommentIdFromDom(commentButtonNode);
+
+  const comment = {
+    commenter: name,
+    text: commentText,
+    commentId: replyOnCommentId,
+  };
 
   const response = await fetch(api, {
     method: "post",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      commenter: name,
-      text: comment,
-    }),
+    body: JSON.stringify(comment),
   });
 
   const savedComment = await response.json();
 
   console.log("Saved>>>>", savedComment);
+
+  if (replyOnCommentId) {
+    commentButtonNode.parentNode.remove();
+  }
+
   bindComments([savedComment]);
 };
 
@@ -55,7 +75,7 @@ const onUpvote = async (event) => {
 
   if (!validateName()) return;
 
-  const commentId = upvoteNode.closest(".comment-section").dataset.id;
+  const commentId = getCommentIdFromDom(upvoteNode);
 
   await fetch(`${api}/${commentId}/upvote`, {
     method: "put",
@@ -64,6 +84,18 @@ const onUpvote = async (event) => {
   const upvoteCountNode = upvoteNode.nextSibling.nextSibling;
 
   upvoteCountNode.innerHTML = +upvoteCountNode.innerHTML + 1;
+};
+
+const onReply = async (event) => {
+  const replyNode = event.target;
+
+  if (!replyNode.classList.contains("reply")) {
+    return;
+  }
+
+  replyNode
+    .closest(".comment-response")
+    .insertAdjacentHTML("afterend", getNewCommentHtml());
 };
 
 const fetchComments = async () => {
@@ -75,7 +107,6 @@ const fetchComments = async () => {
 };
 
 const bindComments = (comments) => {
-  console.log("Bind>>>>", comments);
   const commentsSection = document.getElementById("comments");
 
   if (comments.length === 0) {
@@ -110,9 +141,22 @@ const getCommentHtml = (comment) => `
   </div>
 `;
 
+const getNewCommentHtml = () => `
+  <div class="new-comment-section">
+    <img class="user-pic" src="image 2.png" alt="user" />
+    <input
+      type="text"
+      class="newCommentText"
+      placeholder="What are your thoughts?"
+    />
+    <button class="newCommentButton">Comment</button>
+  </div>
+`;
+
 document.addEventListener("DOMContentLoaded", () => {
   onDomLoaded();
 });
 
 document.addEventListener("click", (event) => onComment(event));
 document.addEventListener("click", (event) => onUpvote(event));
+document.addEventListener("click", (event) => onReply(event));

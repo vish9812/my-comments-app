@@ -28,12 +28,12 @@ header {
   height: 30px;
 }
 
-#newCommentText {
+.newCommentText {
   flex-grow: 1;
   margin: 0 10px;
 }
 
-#newCommentButton {
+.newCommentButton {
   background: #7e34f7;
   font-weight: bold;
   font-size: 11px;
@@ -97,4 +97,5 @@ header {
 
 .reply {
   margin-left: 20px;
+  cursor: pointer;
 }
