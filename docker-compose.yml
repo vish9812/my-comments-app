@@ -13,8 +13,8 @@ services:
     ports:
       - "3306:3306"
 
-  server:
-    image: server
+  backend:
+    container_name: backend
     depends_on:
       - mysqldb
     build:
@@ -23,11 +23,40 @@ services:
     environment:
       NODE_ENV: production
       host: 0.0.0.0
-      port: 5000
+      port: 5001
       db_host: mysqldb
       db_password: admin
+
+  client:
+    container_name: client
+    build:
+      context: src/client
+      dockerfile: ./Dockerfile
+
+  nginx:
+    image: nginx
+    depends_on:
+      - client
+      - backend
+    restart: always
+    build:
+      dockerfile: ./Dockerfile
+      context: nginx
     ports:
-      - 5000:5000
+      - "80:80"
+
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   container_name: portainer
+  #   restart: always
+  #   depends_on:
+  #     - nginx
+  #   ports:
+  #     - "9443:9443"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - portainer_data:/data
 
 volumes:
   mysql_data:
+  # portainer_data:

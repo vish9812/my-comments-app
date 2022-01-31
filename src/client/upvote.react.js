@@ -1,6 +1,4 @@
-import utils from "./utils.js";
-
-const socket = io(utils.baseApi);
+const socket = io();
 socket.on("connect", () => {
   console.log("Connected>>>", socket.id);
 });
