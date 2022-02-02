@@ -27,8 +27,16 @@ io.on("connection", (socket) => {
   console.log("New socket connection>>>", socket.id);
 
   registerUpvotesHandler(io, socket);
+
+  socket.on("disconnect", () =>
+    console.log("Socket disconnected>>>>>", socket.id)
+  );
 });
 
-httpServer.listen(appConfig.port, appConfig.host, () =>
-  console.log("App is running")
+io.on("disconnect", () => {
+  console.log("Disconnected>>>>");
+});
+
+httpServer.listen(appConfig.port, () =>
+  console.log("App is running on port: ", httpServer.address())
 );

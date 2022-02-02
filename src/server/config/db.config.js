@@ -1,4 +1,5 @@
 import appConfig from "./environment.js";
+import { ConnectionError } from "sequelize";
 
 export default {
   host: appConfig.db.host,
@@ -7,6 +8,7 @@ export default {
   database: "my_comments",
   dialect: "mysql",
   retry: {
-    max: 20,
+    match: [ConnectionError],
+    max: 10,
   },
 };

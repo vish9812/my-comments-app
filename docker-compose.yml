@@ -10,10 +10,9 @@ services:
       - MYSQL_ROOT_PASSWORD=admin
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
 
   backend:
+    image: vish9812/my-comments-backend:1.3
     container_name: backend
     depends_on:
       - mysqldb
@@ -22,28 +21,47 @@ services:
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
-      host: 0.0.0.0
       port: 5001
       db_host: mysqldb
       db_password: admin
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 10
+    labels:
+      - appVersion=v1.3
 
   client:
+    image: vish9812/my-comments-ui:1.3
     container_name: client
+    depends_on:
+      - backend
     build:
       context: src/client
       dockerfile: ./Dockerfile
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 10
+    labels:
+      - appVersion=v1.3
 
   nginx:
-    image: nginx
+    image: vish9812/my-comments-server:1.3
     depends_on:
       - client
-      - backend
     restart: always
     build:
       dockerfile: ./Dockerfile
       context: nginx
     ports:
       - "80:80"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 10
+    labels:
+      - appVersion=v1.3
 
   # portainer:
   #   image: portainer/portainer-ce

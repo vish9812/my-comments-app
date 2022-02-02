@@ -112,6 +112,10 @@ const bindComments = (comments, replyOnCommentId) => {
     return;
   }
 
+  if (commentsSection.innerHTML === "No comments yet!") {
+    commentsSection.innerHTML = "";
+  }
+
   if (comments.length === 1) {
     if (replyOnCommentId) {
       // Reply comment

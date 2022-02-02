@@ -11,4 +11,6 @@ const updateTimeAgo = (comments) =>
     return comment;
   });
 
-export { updateTimeAgo };
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export { updateTimeAgo, delay };
